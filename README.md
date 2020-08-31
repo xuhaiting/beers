@@ -1,1 +1,3 @@
-# beers
+# Galaxy Management
+
+Galaxy management portal
