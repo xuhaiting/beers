@@ -30,12 +30,13 @@
                     <div class="dragBtn down el-icon-download"
                         @touchstart.prevent.stop="onHandleDown"
                     ></div>
-                    <!-- <div class="rotate"
-                        @touchStart.prevent.stop="onHandleRotateStart"
+                    <div class="rotate"
+                        @touchstart.prevent.stop="onHandleRotateStart"
                         @touchmove.prevent.stop="onHandleRotateMove"
+                        @touchend.prevent.stop="onHandleRotateEnd"
                     >
                         <div class="el-icon-refresh"></div>
-                    </div> -->
+                    </div>
                 </div>
             </div>
         </div>
@@ -56,6 +57,7 @@
                 rotateX: 0,
                 rotateY: 0,
                 ratio: 1,
+                angleA: 0,
                 boundObject: {},
                 position: {},
                 centerPoint: {}
@@ -109,12 +111,6 @@
                 this.centerPoint.x = x * ratio;
                 this.centerPoint.y = y * ratio;
             },
-            onHandleRotateStart(e) {
-                const touches = e.touches[0];
-                const { clientX, clientY } = touches;
-                this.rotateX = clientX;
-                this.rotateY = clientY;
-            },
             onHandleTouchStart(e, item) {
                 const touches = e.touches[0];
                 const { clientX, clientY } = touches;
@@ -137,6 +133,36 @@
                     y: cy
                 }
             },
+            onHandleRotateStart(e) {
+                const touches = e.touches[0];
+                const { clientX, clientY } = touches;
+                this.rotateX = clientX;
+                this.rotateY = clientY;
+            },
+            onHandleRotateMove(e) {
+                const touches = e.touches[0];
+                const { clientX, clientY } = touches;
+                const { x, y } = this.centerPoint;
+                const a = Math.sqrt(Math.pow(x - this.rotateX, 2) + Math.pow(y - this.rotateY, 2));
+                const b = Math.sqrt(Math.pow(x - clientX, 2) + Math.pow(y - clientY, 2));
+                const c = Math.sqrt(Math.pow(this.rotateX - clientX, 2) + Math.pow(this.rotateY - clientY, 2));
+                const cosA = (Math.pow(a, 2) + Math.pow(b, 2) - Math.pow(c, 2)) / (2 * a * b);
+                const ABX = (this.rotateX - x);
+                const ABY = (this.rotateY - y);
+                const ACX = (clientX - x);
+                const ACY = (clientY - x);                   // 分别求出AB,AC的向量坐标表示
+                const direct = (ABX * ACY) - (ABY * ACX);
+                console.log('direct', direct);
+                const angleA = Math.round(Math.acos(cosA) * 180 / Math.PI);
+                const oAngleA = this.position['angleA'] || 0;
+                this.angleA = angleA;
+                this.list[this.index].position.rotate = oAngleA + angleA;
+            },
+            onHandleRotateEnd() {
+                const angleA = this.angleA;
+                const oAngleA = this.position['angleA'] || 0;
+                this.position['angleA'] = oAngleA + angleA;
+            },
             onHandleTouchMove(e) {
                 const touches = e.touches[0];
                 const { clientX, clientY } = touches;
@@ -144,15 +170,6 @@
                 const { x, y } = this.position;
                 this.list[this.index].position.x = clientX - this.clientX + x;
                 this.list[this.index].position.y = clientY - this.clientY + y;
-            },
-            onHandleRotateMove(e) {
-                const touches = e.touches[0];
-                const { clientX, clientY } = touches;
-                const diffX = clientX - this.rotateX;
-                const diffY = clientY - this.rotateY;
-                const degree =  (360 * Math.atan2(diffY, diffX)) / (2 * Math.PI);
-                console.log("degree",degree);
-                this.list[this.index].position.rotate = degree;
             },
             onHandleTouchEnd() {
                 console.log("onHandleTouchEnd")
