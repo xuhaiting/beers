@@ -19,6 +19,7 @@
                     <div class="dragBtn scale el-icon-crop"
                         @touchstart.prevent.stop="onHandleScaleStart"
                         @touchmove.prevent.stop="onHandleScale"
+                        @touchend.prevent.stop="onHandleScaleEnd"
                     ></div>
                     <div class="dragBtn del el-icon-error"
                         @touchstart.prevent.stop="onHandleDel({...item})"
@@ -54,6 +55,8 @@
                 y: 0,
                 rotateX: 0,
                 rotateY: 0,
+                ratio: 1,
+                boundObject: {},
                 position: {},
                 centerPoint: {}
 			};
@@ -78,28 +81,69 @@
                 this.list.splice(index, 1);
             },
             onHandleScaleStart(e) {
+                this.ratio = 1;
                 const touches = e.touches[0];
                 const { clientX, clientY } = touches;
-                const { x, y } = this.centerPoint;
-                const length = Math.sqrt(Math.pow((x - clientX), 2) + Math.pow((y - clientY), 2));
-                this.centerPoint["length"] = length; 
+                const { x, y } = this.boundObject;
+                const diagonal = Math.sqrt(Math.pow((clientX - x), 2) + Math.pow((clientY - y), 2));
+                this.centerPoint["diagonal"] = diagonal; 
             },
             onHandleScale(e) {
                 const touches = e.touches[0];
                 const { clientX, clientY } = touches;
-                const item = this.list[this.index];
+                const { x, y } = this.boundObject;
+                const { diagonal } = this.centerPoint;
                 const { width, height } = this.position;
-                const { x, y, length } = this.centerPoint;
-                const nlength = Math.sqrt(Math.pow((x - clientX), 2) + Math.pow((y - clientY), 2));
-                const ratio = ((nlength - length) / 2 + length) / length;
+                const ndiagonal = Math.sqrt(Math.pow((clientX - x), 2) + Math.pow((clientY - y), 2));
+                const ratio = ndiagonal / diagonal;
+                this.ratio = ratio;
                 this.list[this.index].position.width = width * ratio;
                 this.list[this.index].position.height = height * ratio;
+            },
+            onHandleScaleEnd() {
+                const ratio = this.ratio;
+                const { width, height } = this.position;
+                this.position.width = width * ratio;
+                this.position.height = height * ratio;
+                const { x, y } = this.centerPoint;
+                this.centerPoint.x = x * ratio;
+                this.centerPoint.y = y * ratio;
             },
             onHandleRotateStart(e) {
                 const touches = e.touches[0];
                 const { clientX, clientY } = touches;
                 this.rotateX = clientX;
                 this.rotateY = clientY;
+            },
+            onHandleTouchStart(e, item) {
+                const touches = e.touches[0];
+                const { clientX, clientY } = touches;
+                this.clientX = clientX;
+                this.clientY = clientY;
+                const { id, position = {} } = item;
+                const index = this.list.findIndex(r => {
+                    return r.id === id
+                })
+                this.active = id;
+                this.index = index;
+                this.position = Object.assign({}, position);
+                const boundObject = e.target.getBoundingClientRect();
+                this.boundObject = boundObject;
+                const { x, y, width, height } = boundObject;
+                const cx = x + width / 2;
+                const cy = y + height / 2;
+                this.centerPoint = {
+                    x: cx,
+                    y: cy
+                }
+            },
+            onHandleTouchMove(e) {
+                const touches = e.touches[0];
+                const { clientX, clientY } = touches;
+                const item = this.list[this.index];
+                const { x, y } = this.position;
+                this.list[this.index].position.x = clientX - this.clientX + x;
+                this.list[this.index].position.y = clientY - this.clientY + y;
             },
             onHandleRotateMove(e) {
                 const touches = e.touches[0];
@@ -109,40 +153,6 @@
                 const degree =  (360 * Math.atan2(diffY, diffX)) / (2 * Math.PI);
                 console.log("degree",degree);
                 this.list[this.index].position.rotate = degree;
-            },
-            onHandleTouchStart(e, item) {
-                const touches = e.touches[0];
-                const { clientX, clientY } = touches;
-                this.clientX = clientX;
-                this.clientY = clientY;
-                const { id, position } = item;
-                const index = this.list.findIndex(r => {
-                    return r.id === id
-                })
-                this.active = id;
-                this.index = index;
-                this.position = Object.assign({}, position);
-                const { rotate = 0 } = position;
-                const clientObj = e.target.getBoundingClientRect()
-                const { x, y, width, height } = clientObj; 
-                const rx = x + width / 2;
-                const ry = y + height / 2;
-                console.log(rx, ry);
-                this.centerPoint = {
-                    x: rx,
-                    y: ry
-                }
-                // const nx = (rx - x) * Math.cos(rotate) - (ry - y) * Math.sin(rotate) + x;
-                // const ny = (ry - y) * Math.cos(rotate) - (rx - x) * Math.sin(rotate) + y;
-                //console.log(nx, ny)
-            },
-            onHandleTouchMove(e) {
-                const touches = e.touches[0];
-                const { clientX, clientY } = touches;
-                const item = this.list[this.index];
-                const { x, y } = this.position;
-                this.list[this.index].position.x = clientX - this.clientX + x;
-                this.list[this.index].position.y = clientY - this.clientY + y;
             },
             onHandleTouchEnd() {
                 console.log("onHandleTouchEnd")

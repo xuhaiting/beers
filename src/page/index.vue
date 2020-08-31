@@ -35,11 +35,11 @@
 					url: 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1598853567215&di=ee5178e5f8d936bd13be748617bc0d9f&imgtype=0&src=http%3A%2F%2Fwww.51pptmoban.com%2Fd%2Ffile%2F2017%2F10%2F15%2F6ffa25f84245f7360ee95696f8b554b4.png',
 					position: {
 						x: 100,
-						y: 240,
+						y: 340,
 						width: 200,
 						height: 180,
 						zIndex: 2,
-						rotate: 45
+						rotate: 0
 					}
 				}],
 				footBtnList: [{
