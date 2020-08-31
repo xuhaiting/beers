@@ -27,34 +27,12 @@
 </script>
 
 <style>
-	.topContainer {
+	.pageView {
+		position: fixed;
+		left: 0;
+		top: 0;
+		width: 100%;
 		height: 100%;
 		overflow: hidden;
-	}
-
-	.topInfo {
-		height: calc(100% - 60px);
-		overflow: hidden;
-	}
-	
-	.pageHeader {
-		height: 54px;
-		display: flex;
-		align-items: center;
-		padding: 0 16px;
-		border-bottom: 1px solid #eaeefb;
-	}
-
-	.pageView {
-		height: calc(100% - 55px);
-		overflow-y: auto
-	}
-
-	.el-main {
-		color: #333;
-		text-align: center;
-		padding: 0 !important;
-		margin: 0 !important;
-		overflow: hidden !important;
 	}
 </style>
