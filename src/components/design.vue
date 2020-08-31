@@ -152,7 +152,6 @@
                 const ACX = (clientX - x);
                 const ACY = (clientY - x);                   // 分别求出AB,AC的向量坐标表示
                 const direct = (ABX * ACY) - (ABY * ACX);
-                console.log('direct', direct);
                 const angleA = Math.round(Math.acos(cosA) * 180 / Math.PI);
                 const oAngleA = this.position['angleA'] || 0;
                 this.angleA = angleA;
